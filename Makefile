@@ -148,7 +148,8 @@ GUI_OBJS = $(addprefix $(GUI_OBJS_DIRECTORY), $(GUI_OBJS_LIST))
 # RENDER WITH MAIN FILE
 RENDER_SRCS_DIRECTORY = $(SRCS_PATH)render/
 RENDER_SRCS_LIST = \
-render_redraw.c
+render_redraw.c\
+render_set.c
 
 RENDER_OBJS_DIRECTORY = $(OBJS_PATH)
 RENDER_OBJS_LIST = $(patsubst %.c, %.o, $(RENDER_SRCS_LIST))

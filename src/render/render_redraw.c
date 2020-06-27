@@ -27,12 +27,12 @@ double		hit_sphere(t_vector3 center, t_vector3 orig, t_vector3 dir, float radius
 // Определяет цвет каждого пикселю по лучу
 t_vector3	ft_color(t_vector3 dir)
 {
-	t_vector3	unit_dir;
+	// t_vector3	unit_dir;
 	float		t;
-	t_vector3	vec_1;
-	t_vector3	vec_05;
-	t_vector3	vec_12;
-	t_vector3	vec_052;
+	// t_vector3	vec_1;
+	// t_vector3	vec_05;
+	// t_vector3	vec_12;
+	// t_vector3	vec_052;
 
 	t_vector3	vec_light = (t_vector3){1.0, 1.0, 1.0, 0.0}; // Некоторый точечный источник света
 	t_vector3	normal_vec_light = ft_vec3_normalize(&vec_light);
@@ -64,24 +64,35 @@ t_vector3	ft_color(t_vector3 dir)
 		return (ft_vec3_scalar_product(&color_vec, intensive));
 	}
 
-	// Далее -- расчёт фонового градиента
-	vec_1 = (t_vector3){1.0, 1.0, 1.0, 0.0};
-	vec_05 = (t_vector3){0.5, 0.7, 1.0, 0.0};
-	unit_dir = ft_vec3_normalize(&dir);
+	// Расчёт фонового градиента отключён, вместо него -- чёрный цвет
+	return ((t_vector3){0.0, 0.0, 0.0, 0.0});
 
-	// Используется непосредственно для создания градиента
-	// (отвечает за насыщенность цвета)
-	t = 0.5 * (unit_dir.y + 1.0);
+	// // Далее -- расчёт фонового градиента
+	// vec_1 = (t_vector3){1.0, 1.0, 1.0, 0.0};
+	// vec_05 = (t_vector3){0.5, 0.7, 1.0, 0.0};
+	// unit_dir = ft_vec3_normalize(&dir);
 
-	vec_12 = ft_vec3_scalar_product(&vec_1, (1.0 - t));
-	vec_052 = ft_vec3_scalar_product(&vec_05, t);
+	// // Используется непосредственно для создания градиента
+	// // (отвечает за насыщенность цвета)
+	// t = 0.5 * (unit_dir.y + 1.0);
 
-	return ((t_vector3)ft_vec3_add(vec_12, vec_052));
+	// vec_12 = ft_vec3_scalar_product(&vec_1, (1.0 - t));
+	// vec_052 = ft_vec3_scalar_product(&vec_05, t);
+
+	// return ((t_vector3)ft_vec3_add(vec_12, vec_052));
 }
 
 void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 {
 	(void)dom;
+
+	t_rt_obj *camera;
+
+	if (w->camera == NULL)
+		return ;
+	camera = w->camera->content;
+
+	// console.log("", w->ca)
 
 	// Счётчики
 	float x;
@@ -116,8 +127,8 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 
 	// horizontal, vertical -- отвечают за пропорцию проекции
 	// (за угол обзора fov)
-	*horizontal = (t_vector3){32.0, 0.0, 0.0, 0.0};
-	*vertical = (t_vector3){0.0, 18.0, 0.0, 0.0};
+	*horizontal = (t_vector3){camera->width, 0.0, 0.0, 0.0};
+	*vertical = (t_vector3){0.0, camera->height, 0.0, 0.0};
 
 	x = 0;
 	y = WIN_HEIGHT - 1;
@@ -139,7 +150,7 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 			int ir = (255.99 * col.x);
 			int ig = (255.99 * col.y);
 			int ib = (255.99 * col.z);
-			w->sdl->pixels[(int)wid*WIN_WIDTH + (int)x] = ft_rgb_to_hex(ir,ig,ib);
+			w->sdl->pixels[(int)wid*WIN_WIDTH + (int)x] = ft_rgb_to_hex(ir, ig, ib);
 			x++;
 		}
 		wid++;

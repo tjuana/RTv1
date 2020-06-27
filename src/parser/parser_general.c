@@ -13,7 +13,7 @@
 **	int					| 0 if element is ultimate
 ** **************************************************************************
 */
-int			parser_xml_file_struct(char *file_start, char *file_end, t_list *s)
+int			parser_xml_file_struct(char *file_start, char *file_end, t_list **s)
 {
 	t_xml_elem	*elem;
 	t_list		*list;
@@ -23,10 +23,10 @@ int			parser_xml_file_struct(char *file_start, char *file_end, t_list *s)
 		return (0);
 	}
 	list = ft_lstnew(elem, sizeof(t_xml_elem));
-	if (s == NULL)
-		s = list;
+	if (*s == NULL)
+		*s = list;
 	else
-		ft_lstadd(&s, list);
+		ft_lstadd(s, list);
 	printf("@ %s: %s\n", elem->name, elem->content);
 	if (elem->ptr_end_content - elem->ptr_begin_content > 0 && elem->name != NULL)
 		parser_xml_file_struct(elem->ptr_begin_content, elem->ptr_end_content, NULL);
@@ -58,7 +58,8 @@ void*		parser_xml_file(char *filename)
 	if ((void*)file == NULL)
 		ft_error("[XML Parser]: Unknown error");
 	s = NULL;
-	parser_xml_file_struct(file, file_end, s);
+	parser_xml_file_struct(file, file_end, &s);
 	free(file);
+	// printf("%p\n", s);
 	return (s);
 }
