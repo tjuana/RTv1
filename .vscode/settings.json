@@ -1,0 +1,11 @@
+
+{
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"editor.tabSize": 4,
+	"files.associations": {
+		"algorithm": "c",
+		"sstream": "c"
+	},
+	"editor.renderWhitespace": "all",
+}
