@@ -33,39 +33,47 @@ t_vector3	ft_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 	t_rt_obj *light = w->light->content;
 	t_vector3	color_vec = (t_vector3){1.0, 0.0, 0.0, 0.0}; // red
 
-	t = hit_sphere((t_vector3){0.0, 0.0, -1.0, 0.0}, (t_vector3){0.0, 0.0, 0.0, 0.0}, dir, 0.5);
-
-	// Если hit_sphere вернёт true, то область занята некоторым объектом
-	if (t > 0.0)
+	t_list *ptr_obj = w->obj;
+	while (ptr_obj)
 	{
-		// Добавляем степень освещённости объекта
-		// Чем больше угол между источником света и нормали к точке пересечения, тем ярче цвет объекта
+		t_rt_obj *obj = ptr_obj->content;
+		t = hit_sphere(obj->coord, (t_vector3){0.0, 0.0, 0.0, 0.0}, dir, obj->radius);
 
-		// Рассчитываем для света (несколько источников):
-		t_list *light_list = w->light;
-		intensive = 0.0;
-		while (light_list)
+		// Если hit_sphere вернёт true, то область занята некоторым объектом
+		if (t > 0.0)
 		{
-			// 1. Вычислим ненормализованный вектор
-			t_vector3 v = ft_vec3_add(ft_vec3_add(
-				orig, // orig
-				ft_vec3_scalar_product(&dir, t) // dir * t
-			), (t_vector3){0.0, 0.0, -1.0, 0.0});
+			// Добавляем степень освещённости объекта
+			// Чем больше угол между источником света и нормали к точке пересечения, тем ярче цвет объекта
 
-			// 2. Вычислим нормализованный вектор
-			t_vector3 n = ft_vec3_normalize(&v);
+			// Рассчитываем для света (несколько источников):
+			t_list *light_list = w->light;
+			intensive = 0.0;
+			while (light_list)
+			{
+				// 1. Вычислим ненормализованный вектор
+				t_vector3 v = ft_vec3_add(ft_vec3_add(
+					orig, // orig
+					ft_vec3_scalar_product(&dir, t) // dir * t
+				), (t_vector3){0.0, 0.0, -1.0, 0.0});
 
-			// 3. Рассчитаем угол между источником света и объектом
-			// Скалярное произведение нормированных векторов = cos угла между ними
-			intensive += ft_vec3_dot_product(&n, &light->normal_coord);
-			light_list = light_list->next;
+				// 2. Вычислим нормализованный вектор
+				t_vector3 n = ft_vec3_normalize(&v);
+
+				// 3. Рассчитаем угол между источником света и объектом
+				// Скалярное произведение нормированных векторов = cos угла между ними
+				intensive += ft_vec3_dot_product(&n, &light->normal_coord);
+				light_list = light_list->next;
+			}
+
+			intensive = fabs(intensive);
+			intensive = intensive > 1 ? 1 : intensive;
+
+			return (ft_vec3_scalar_product(&color_vec, intensive));
 		}
 
-		intensive = fabs(intensive);
-		intensive = intensive > 1 ? 1 : intensive;
-
-		return (ft_vec3_scalar_product(&color_vec, intensive));
+		ptr_obj = ptr_obj->next;
 	}
+
 
 	// Расчёт фонового градиента отключён, вместо него -- чёрный цвет
 	return ((t_vector3){0.0, 0.0, 0.0, 0.0});
