@@ -41,7 +41,7 @@ typedef struct				s_rt_scene
 **	src/render/render_redraw.c
 ** **************************************************************************
 */
-void						ft_render_redraw(t_wolf3d *w, t_list *dom);
+void						render_redraw(t_wolf3d *w, t_list *dom);
 
 /*
 ** **************************************************************************

@@ -36,7 +36,7 @@ void	ft_main_gui_init_win_2(t_list *head)
 	ft_gui_elem_set_color(win->child, 0x000000);
 	ft_gui_elem_set_parent(head, win->child);
 	ft_gui_elem_set_status(win->child, GUI_ELEM_HIDDEN);
-	ft_gui_elem_set_redraw(win->child, ft_render_redraw);
+	ft_gui_elem_set_redraw(win->child, render_redraw);
 }
 
 void	ft_main_gui_init_win(t_list *head)

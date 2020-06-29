@@ -1,5 +1,13 @@
 #include "rtv1.h"
 
+Uint32		ft_vec_rgb_to_hex(t_vector3 vec)
+{
+	return ft_rgb_to_hex(\
+		(int)(256.0 * vec.x), \
+		(int)(256.0 * vec.y), \
+		(int)(256.0 * vec.z));
+}
+
 /*
 ** **************************************************************************
 **	int ft_rgb_to_hex(int r, int g, int b)
