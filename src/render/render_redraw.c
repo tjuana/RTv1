@@ -31,7 +31,7 @@ t_vector3	ft_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 	double		intensive;
 
 	t_rt_obj *light = w->light->content;
-	t_vector3	color_vec = (t_vector3){1.0, 0.0, 0.0, 0.0}; // red
+	// t_vector3	color_vec = (t_vector3){1.0, 0.0, 0.0, 0.0}; // red
 
 	t_list *ptr_obj = w->obj;
 	while (ptr_obj)
@@ -68,7 +68,7 @@ t_vector3	ft_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 			intensive = fabs(intensive);
 			intensive = intensive > 1 ? 1 : intensive;
 
-			return (ft_vec3_scalar_product(&color_vec, intensive));
+			return (ft_vec3_scalar_product(&obj->vec_rgb, intensive));
 		}
 
 		ptr_obj = ptr_obj->next;
@@ -83,6 +83,7 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 {
 	(void)dom;
 
+	// Last version
 	t_rt_obj *camera;
 
 	if (w->camera == NULL)
@@ -92,7 +93,7 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 	// Счётчики
 	float x;
 	float y;
-	int wid = 0;
+	// int wid = 0;
 
 	// Коэффициенты отклонения луча
 	float u;
@@ -112,11 +113,10 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 	horizontal = ft_my_malloc(sizeof(t_vector3));
 	vertical = ft_my_malloc(sizeof(t_vector3));
 
-	// orig пока нигде не используется
 	*orig = (t_vector3){0.0, 0.0, 0.0, 0.0};
 
 	// left_corner -- настройки камеры (расположение камеры?)
-	/* left_corner = (t_vector3){смещение по горизонтали, смещение по вертикали, ~zoom, 0} */
+	// left_corner = (t_vector3){смещение по горизонтали, смещение по вертикали, ~zoom, 0}
 	*left_corner = (t_vector3){-camera->width / 2, -camera->height / 2, -10.0, 0.0};
 
 	// horizontal, vertical -- отвечают за пропорцию проекции
@@ -125,10 +125,10 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 	*vertical = (t_vector3){0.0, camera->height, 0.0, 0.0};
 
 	x = 0;
-	y = WIN_HEIGHT - 1;
-	wid = 0;
+	// y = WIN_HEIGHT - 1;
+	y = 0;
 
-	while (y >= 0 && wid < WIN_HEIGHT)
+	while ((int)y < WIN_HEIGHT)
 	{
 		x = 0;
 		while (x < WIN_WIDTH)
@@ -143,10 +143,9 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 			int ir = (255.99 * col.x);
 			int ig = (255.99 * col.y);
 			int ib = (255.99 * col.z);
-			w->sdl->pixels[(int)wid * WIN_WIDTH + (int)x] = ft_rgb_to_hex(ir, ig, ib);
+			w->sdl->pixels[(WIN_HEIGHT - 1 - (int)y) * WIN_WIDTH + (int)x] = ft_rgb_to_hex(ir, ig, ib);
 			x++;
 		}
-		wid++;
-		y--;
+		y++;
 	}
 }

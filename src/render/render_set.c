@@ -43,6 +43,7 @@ static void		render_xml_elem_to_object(t_wolf3d *w, t_xml_elem *elem, int type)
 			obj->coord.y = (double)ft_atoi(array[1]);
 			obj->coord.z = (double)ft_atoi(array[2]);
 			obj->normal_coord = ft_vec3_normalize(&obj->coord);
+			// need to delete array
 		}
 		else if (!ft_strcmp(attr->key, "dir"))
 		{
@@ -51,6 +52,16 @@ static void		render_xml_elem_to_object(t_wolf3d *w, t_xml_elem *elem, int type)
 			obj->dir.y = (double)ft_atoi(array[1]);
 			obj->dir.z = (double)ft_atoi(array[2]);
 			obj->normal_dir = ft_vec3_normalize(&obj->dir);
+			// need to delete array
+		}
+		// for rgb color
+		else if (!ft_strcmp(attr->key, "rgb"))
+		{
+			char** array = ft_strsplit(attr->value, ',');
+			obj->vec_rgb.x = (double)ft_atoi(array[0]) / 256.0;
+			obj->vec_rgb.y = (double)ft_atoi(array[1]) / 256.0;
+			obj->vec_rgb.z = (double)ft_atoi(array[2]) / 256.0;
+			// need to delete array
 		}
 
 		attr_list = attr_list->next;

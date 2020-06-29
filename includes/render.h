@@ -13,6 +13,9 @@
 # define RT_OBJ_CONE		0x05
 # define RT_OBJ_LIGHT		0xF1
 
+# define RT_WIDTH			WIN_HEIGHT
+# define RT_HEIGHT			WIN_HEIGHT
+
 typedef struct				s_rt_obj
 {
 	int						rt_obj_type;
@@ -22,6 +25,7 @@ typedef struct				s_rt_obj
 	t_vector3				dir;
 	t_vector3				normal_dir;
 	int						color;
+	t_vector3				vec_rgb;
 	double					radius;
 	double					width;
 	double					height;
