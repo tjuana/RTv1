@@ -86,9 +86,10 @@ typedef struct			s_wolf3d
 	void				*new_data;
 
 	// List for scenes object
-	// t_rt_scene			*scene;
+	t_list				*xml; // xml-object
+	t_list				*camera;
 	t_list				*obj;
-	t_list				*light_obj;
+	t_list				*light;
 }						t_wolf3d;
 
 #endif

@@ -25,63 +25,69 @@ double		hit_sphere(t_vector3 center, t_vector3 orig, t_vector3 dir, float radius
 }
 
 // Определяет цвет каждого пикселю по лучу
-t_vector3	ft_color(t_vector3 dir)
+t_vector3	ft_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 {
-	t_vector3	unit_dir;
 	float		t;
-	t_vector3	vec_1;
-	t_vector3	vec_05;
-	t_vector3	vec_12;
-	t_vector3	vec_052;
+	double		intensive;
 
-	t_vector3	vec_light = (t_vector3){1.0, 1.0, 1.0, 0.0}; // Некоторый точечный источник света
-	t_vector3	normal_vec_light = ft_vec3_normalize(&vec_light);
-
+	t_rt_obj *light = w->light->content;
 	t_vector3	color_vec = (t_vector3){1.0, 0.0, 0.0, 0.0}; // red
 
-	t = hit_sphere((t_vector3){0.0, 0.0, -1.0, 0.0}, (t_vector3){0.0, 0.0, 0.0, 0.0}, dir, 0.5);
-
-	// Если hit_sphere вернёт true, то область занята некоторым объектом
-	if (t > 0.0)
+	t_list *ptr_obj = w->obj;
+	while (ptr_obj)
 	{
-		// Temp add: добавляем степень освещённости объекта
-		// Чем больше угол между источником света и нормали в точке пересечения, тем ярче цвет объекта
+		t_rt_obj *obj = ptr_obj->content;
+		t = hit_sphere(obj->coord, (t_vector3){0.0, 0.0, 0.0, 0.0}, dir, obj->radius);
 
-		// 1. Вычислим ненормализованный вектор
-		t_vector3 v = ft_vec3_add(ft_vec3_add(
-			(t_vector3){0.0, 0.0, 0.0, 0.0}, // orig
-			ft_vec3_scalar_product(&dir, t) // dir * t
-		), (t_vector3){0.0, 0.0, -1.0, 0.0});
+		// Если hit_sphere вернёт true, то область занята некоторым объектом
+		if (t > 0.0)
+		{
+			// Добавляем степень освещённости объекта
+			// Чем больше угол между источником света и нормали к точке пересечения, тем ярче цвет объекта
 
-		// 2. Вычислим нормализованный вектор
-		t_vector3 n = ft_vec3_normalize(&v);
-		// return ((t_vector3){(n.x + 1), (n.y + 1), (n.z + 1), 0.0}); // Выведет деление на сектора (неожиданно)
+			// Рассчитываем для света (несколько источников):
+			t_list *light_list = w->light;
+			intensive = 0.0;
+			while (light_list)
+			{
+				// 1. Вычислим ненормализованный вектор
+				t_vector3 v = ft_vec3_add(ft_vec3_add(
+					orig, // orig
+					ft_vec3_scalar_product(&dir, t) // dir * t
+				), (t_vector3){0.0, 0.0, -1.0, 0.0});
 
-		// 3. Рассчитаем угол между источником света и объектом
-		// Скалярное произведение нормированных векторов = cos угла между ними
-		double intensive = ft_vec3_dot_product(&n, &normal_vec_light);
+				// 2. Вычислим нормализованный вектор
+				t_vector3 n = ft_vec3_normalize(&v);
 
-		return (ft_vec3_scalar_product(&color_vec, intensive));
+				// 3. Рассчитаем угол между источником света и объектом
+				// Скалярное произведение нормированных векторов = cos угла между ними
+				intensive += ft_vec3_dot_product(&n, &light->normal_coord);
+				light_list = light_list->next;
+			}
+
+			intensive = fabs(intensive);
+			intensive = intensive > 1 ? 1 : intensive;
+
+			return (ft_vec3_scalar_product(&color_vec, intensive));
+		}
+
+		ptr_obj = ptr_obj->next;
 	}
 
-	// Далее -- расчёт фонового градиента
-	vec_1 = (t_vector3){1.0, 1.0, 1.0, 0.0};
-	vec_05 = (t_vector3){0.5, 0.7, 1.0, 0.0};
-	unit_dir = ft_vec3_normalize(&dir);
 
-	// Используется непосредственно для создания градиента
-	// (отвечает за насыщенность цвета)
-	t = 0.5 * (unit_dir.y + 1.0);
-
-	vec_12 = ft_vec3_scalar_product(&vec_1, (1.0 - t));
-	vec_052 = ft_vec3_scalar_product(&vec_05, t);
-
-	return ((t_vector3)ft_vec3_add(vec_12, vec_052));
+	// Расчёт фонового градиента отключён, вместо него -- чёрный цвет
+	return ((t_vector3){0.0, 0.0, 0.0, 0.0});
 }
 
 void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 {
 	(void)dom;
+
+	t_rt_obj *camera;
+
+	if (w->camera == NULL)
+		return ;
+	camera = w->camera->content;
 
 	// Счётчики
 	float x;
@@ -101,7 +107,6 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 	t_vector3 *horizontal;
 	t_vector3 *vertical;
 
-
 	orig = ft_my_malloc(sizeof(t_vector3));
 	left_corner = ft_my_malloc(sizeof(t_vector3));
 	horizontal = ft_my_malloc(sizeof(t_vector3));
@@ -112,12 +117,12 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 
 	// left_corner -- настройки камеры (расположение камеры?)
 	/* left_corner = (t_vector3){смещение по горизонтали, смещение по вертикали, ~zoom, 0} */
-	*left_corner = (t_vector3){-16.0, -9.0, -9.0, 0.0};
+	*left_corner = (t_vector3){-camera->width / 2, -camera->height / 2, -10.0, 0.0};
 
 	// horizontal, vertical -- отвечают за пропорцию проекции
 	// (за угол обзора fov)
-	*horizontal = (t_vector3){32.0, 0.0, 0.0, 0.0};
-	*vertical = (t_vector3){0.0, 18.0, 0.0, 0.0};
+	*horizontal = (t_vector3){camera->width, 0.0, 0.0, 0.0};
+	*vertical = (t_vector3){0.0, camera->height, 0.0, 0.0};
 
 	x = 0;
 	y = WIN_HEIGHT - 1;
@@ -133,13 +138,12 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 			v = (float)(y / WIN_HEIGHT);
 
 			// Цвет выражен через вектор
-			col = ft_color(ft_vec3_add(ft_vec3_add(*left_corner, \
+			col = ft_color(w, *orig, ft_vec3_add(ft_vec3_add(*left_corner, \
 				ft_vec3_scalar_product(horizontal, u)), ft_vec3_scalar_product(vertical, v)));
-			// col = (t_vector3){x / WIN_WIDTH, y / WIN_HEIGHT, 0.2, 0.0};
 			int ir = (255.99 * col.x);
 			int ig = (255.99 * col.y);
 			int ib = (255.99 * col.z);
-			w->sdl->pixels[(int)wid*WIN_WIDTH + (int)x] = ft_rgb_to_hex(ir,ig,ib);
+			w->sdl->pixels[(int)wid * WIN_WIDTH + (int)x] = ft_rgb_to_hex(ir, ig, ib);
 			x++;
 		}
 		wid++;

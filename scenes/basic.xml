@@ -1,0 +1,6 @@
+<camera width="32" height="18" coord="0,0,0" dir="0,0,0"></camera>
+<light type="point" coord="10,10,1"></light>
+<light type="point" coord="-10,-1,1"></light>
+<sphere coord="2,1,-6" radius="1"></sphere>
+<sphere coord="-2,-2,-4" radius="1"></sphere>
+<sphere coord="0,0,-2" radius="1"></sphere>
