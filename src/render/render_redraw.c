@@ -3,43 +3,49 @@
 // Ф-ия определяла, пересекает ли луч объект (шар)
 // ->
 // Ф-ия возвращает точку попадания
-double		hit_sphere(t_vector3 center, t_vector3 orig, t_vector3 dir, float radius)
+double		render_hit_sphere(t_vector3 center, t_vector3 orig, t_vector3 dir, float radius)
 {
 	t_vector3	oc;
-	float		desc;
+	float		disc;
 	float		a;
 	float		b;
 	float		c;
 
 	oc = ft_vec3_sub(&orig, &center);
 	a = ft_vec3_dot_product(&dir, &dir);
-	b = 2.0 * ft_vec3_dot_product(&oc, &dir);
+	b = 2.0 * ft_vec3_dot_product(&dir, &oc);
 	c = ft_vec3_dot_product(&oc, &oc) - radius * radius;
-	desc = b * b - 4 * a * c;
+	disc = b * b - 4 * a * c;
 
 	// Возвращает -1, если луч не проходит через круг
-	if (desc < 0)
+	if (disc < 0) // missed
 		return (-1.0);
 	else
-		return (-b - sqrt(desc)) / (2.0 * a);
+		return (-b - sqrt(disc)) / (2.0 * a);
 }
 
 // Определяет цвет каждого пикселю по лучу
-t_vector3	ft_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
+t_vector3	render_get_pixel_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 {
 	float		t;
 	double		intensive;
 
-	t_rt_obj *light = w->light->content;
-	t_vector3	color_vec = (t_vector3){1.0, 0.0, 0.0, 0.0}; // red
+	t_rt_obj	*light = w->light->content;
+	t_list		*ptr_obj = w->obj;
 
-	t_list *ptr_obj = w->obj;
+	// Пока есть объекты
 	while (ptr_obj)
 	{
+		// Записываем объект
 		t_rt_obj *obj = ptr_obj->content;
-		t = hit_sphere(obj->coord, (t_vector3){0.0, 0.0, 0.0, 0.0}, dir, obj->radius);
 
-		// Если hit_sphere вернёт true, то область занята некоторым объектом
+		// Если объект относится к какой-то категории, проверяем пересечение
+		if (obj->rt_obj_type == RT_OBJ_SPHERE)
+			t = render_hit_sphere(obj->coord, (t_vector3){0.0, 0.0, 0.0, 0.0}, dir, obj->radius);
+		else
+			t = 0.0;
+
+		// Если render_hit_sphere вернёт > 0.0, то область занята некоторым объектом
 		if (t > 0.0)
 		{
 			// Добавляем степень освещённости объекта
@@ -51,7 +57,7 @@ t_vector3	ft_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 			while (light_list)
 			{
 				// 1. Вычислим ненормализованный вектор
-				t_vector3 v = ft_vec3_add(ft_vec3_add(
+				t_vector3 v = ft_vec3_add(ft_vec3_add(\
 					orig, // orig
 					ft_vec3_scalar_product(&dir, t) // dir * t
 				), (t_vector3){0.0, 0.0, -1.0, 0.0});
@@ -66,9 +72,9 @@ t_vector3	ft_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 			}
 
 			intensive = fabs(intensive);
-			intensive = intensive > 1 ? 1 : intensive;
+			intensive = (intensive > 1) ? 1 : intensive;
 
-			return (ft_vec3_scalar_product(&color_vec, intensive));
+			return (ft_vec3_scalar_product(&obj->vec_rgb, intensive));
 		}
 
 		ptr_obj = ptr_obj->next;
@@ -79,10 +85,11 @@ t_vector3	ft_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 	return ((t_vector3){0.0, 0.0, 0.0, 0.0});
 }
 
-void		ft_render_redraw(t_wolf3d *w, t_list *dom)
+void		render_redraw(t_wolf3d *w, t_list *dom)
 {
 	(void)dom;
 
+	// Last version
 	t_rt_obj *camera;
 
 	if (w->camera == NULL)
@@ -90,63 +97,53 @@ void		ft_render_redraw(t_wolf3d *w, t_list *dom)
 	camera = w->camera->content;
 
 	// Счётчики
-	float x;
-	float y;
-	int wid = 0;
+	int		x;
+	int		y;
 
 	// Коэффициенты отклонения луча
-	float u;
-	float v;
+	float	u;
+	float 	v;
 
 	// Вектор цвета (буфер для каждого луча)
-	t_vector3 col;
+	t_vector3 vec_color;
 
 	// Свойства сцены
-	t_vector3 *orig;
-	t_vector3 *left_corner;
-	t_vector3 *horizontal;
-	t_vector3 *vertical;
+	t_vector3	*orig;
+
+	t_vector3	ray;
+
+	int			pixel;
 
 	orig = ft_my_malloc(sizeof(t_vector3));
-	left_corner = ft_my_malloc(sizeof(t_vector3));
-	horizontal = ft_my_malloc(sizeof(t_vector3));
-	vertical = ft_my_malloc(sizeof(t_vector3));
-
-	// orig пока нигде не используется
 	*orig = (t_vector3){0.0, 0.0, 0.0, 0.0};
 
-	// left_corner -- настройки камеры (расположение камеры?)
-	/* left_corner = (t_vector3){смещение по горизонтали, смещение по вертикали, ~zoom, 0} */
-	*left_corner = (t_vector3){-camera->width / 2, -camera->height / 2, -10.0, 0.0};
-
-	// horizontal, vertical -- отвечают за пропорцию проекции
-	// (за угол обзора fov)
-	*horizontal = (t_vector3){camera->width, 0.0, 0.0, 0.0};
-	*vertical = (t_vector3){0.0, camera->height, 0.0, 0.0};
-
 	x = 0;
-	y = WIN_HEIGHT - 1;
-	wid = 0;
+	y = 0;
 
-	while (y >= 0 && wid < WIN_HEIGHT)
+	// Проходим по каждой строке...
+	while (y < WIN_HEIGHT)
 	{
 		x = 0;
+		// По каждому пикселю...
 		while (x < WIN_WIDTH)
 		{
 			// Коэффициенты отклонения луча
-			u = (float)(x / WIN_WIDTH);
-			v = (float)(y / WIN_HEIGHT);
+			u = ((float)x / WIN_WIDTH);
+			v = ((float)y / WIN_HEIGHT);
+
+			// Получаем луч, который пускаем: к координате края изображения добавляем смещение
+			ray = (t_vector3){-camera->width / 2 + camera->width * u, -camera->height / 2 + camera->height * v, camera->coord.z, 0.0};
+			ray.z = -sqrt((pow((camera->width / 2), 2) + pow((camera->height / 2), 2)) + pow(ray.z, 2) - pow(ray.x, 2) - pow(ray.y, 2)) / 1.5708;
 
 			// Цвет выражен через вектор
-			col = ft_color(w, *orig, ft_vec3_add(ft_vec3_add(*left_corner, \
-				ft_vec3_scalar_product(horizontal, u)), ft_vec3_scalar_product(vertical, v)));
-			int ir = (255.99 * col.x);
-			int ig = (255.99 * col.y);
-			int ib = (255.99 * col.z);
-			w->sdl->pixels[(int)wid * WIN_WIDTH + (int)x] = ft_rgb_to_hex(ir, ig, ib);
+			vec_color = render_get_pixel_color(w, *orig, ray);
+
+			// Ставим пиксель (y по пикселям идет вниз, а должен вверх)
+			pixel = (WIN_HEIGHT - 1 - y) * WIN_WIDTH + x;
+			if (pixel >= 0 && pixel < WIN_HEIGHT * WIN_WIDTH)
+				w->sdl->pixels[pixel] = ft_vec_rgb_to_hex(vec_color);
 			x++;
 		}
-		wid++;
-		y--;
+		y++;
 	}
 }

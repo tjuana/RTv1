@@ -12,6 +12,7 @@
 **	src/func/func_color.c
 ** **************************************************************************
 */
+Uint32		ft_vec_rgb_to_hex(t_vector3 vec);
 Uint32		ft_rgb_to_hex(Uint32 r, Uint32 g, Uint32 b);
 Uint32		ft_color_struct_to_hex(t_color color);
 Uint32		ft_hex_transform(int color, float percent);
