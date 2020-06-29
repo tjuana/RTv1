@@ -112,6 +112,8 @@ void		render_redraw(t_wolf3d *w, t_list *dom)
 
 	t_vector3	ray;
 
+	int			pixel;
+
 	orig = ft_my_malloc(sizeof(t_vector3));
 	*orig = (t_vector3){0.0, 0.0, 0.0, 0.0};
 
@@ -130,13 +132,16 @@ void		render_redraw(t_wolf3d *w, t_list *dom)
 			v = ((float)y / WIN_HEIGHT);
 
 			// Получаем луч, который пускаем: к координате края изображения добавляем смещение
-			ray = (t_vector3){-camera->width / 2 + camera->width * u, -camera->height / 2 + camera->height * v, -10.0, 0.0};
+			ray = (t_vector3){-camera->width / 2 + camera->width * u, -camera->height / 2 + camera->height * v, camera->coord.z, 0.0};
+			ray.z = -sqrt((pow((camera->width / 2), 2) + pow((camera->height / 2), 2)) + pow(ray.z, 2) - pow(ray.x, 2) - pow(ray.y, 2)) / 1.5708;
 
 			// Цвет выражен через вектор
 			vec_color = render_get_pixel_color(w, *orig, ray);
 
 			// Ставим пиксель (y по пикселям идет вниз, а должен вверх)
-			w->sdl->pixels[(WIN_HEIGHT - 1 - y) * WIN_WIDTH + x] = ft_vec_rgb_to_hex(vec_color);
+			pixel = (WIN_HEIGHT - 1 - y) * WIN_WIDTH + x;
+			if (pixel >= 0 && pixel < WIN_HEIGHT * WIN_WIDTH)
+				w->sdl->pixels[pixel] = ft_vec_rgb_to_hex(vec_color);
 			x++;
 		}
 		y++;
