@@ -90,6 +90,8 @@ static void		render_xml_file_to_object_list(t_wolf3d *w)
 			render_xml_elem_to_object(w, ptr_elem, RT_OBJ_LIGHT);
 		else if (!ft_strcmp(ptr_elem->name, "sphere"))
 			render_xml_elem_to_object(w, ptr_elem, RT_OBJ_SPHERE);
+		else if (!ft_strcmp(ptr_elem->name, "plane"))
+			render_xml_elem_to_object(w, ptr_elem, RT_OBJ_PLANE);
 		list = list->next;
 	}
 }

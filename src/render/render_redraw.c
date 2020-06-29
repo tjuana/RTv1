@@ -1,5 +1,14 @@
 #include "rtv1.h"
 
+// Incorrect
+double		render_hit_plane(t_vector3 camera_coord, t_vector3 ray, t_vector3 coord, t_vector3 dir)
+{
+	(void)camera_coord;
+	(void)coord;
+
+	return (fabs(ray.x * dir.x + ray.y * dir.y + ray.z * dir.z) < 10);
+}
+
 // Ф-ия определяла, пересекает ли луч объект (шар)
 // ->
 // Ф-ия возвращает точку попадания
@@ -42,6 +51,8 @@ t_vector3	render_get_pixel_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 		// Если объект относится к какой-то категории, проверяем пересечение
 		if (obj->rt_obj_type == RT_OBJ_SPHERE)
 			t = render_hit_sphere(obj->coord, (t_vector3){0.0, 0.0, 0.0, 0.0}, dir, obj->radius);
+		else if (obj->rt_obj_type == RT_OBJ_PLANE)
+			t = render_hit_plane((t_vector3){0.0, 0.0, -10.0, 0.0}, dir, obj->coord, obj->dir);
 		else
 			t = 0.0;
 
