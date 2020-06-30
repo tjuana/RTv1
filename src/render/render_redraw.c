@@ -154,8 +154,7 @@ void		render_redraw(t_wolf3d *w, t_list *dom)
 			ray.z = -sqrt((pow((camera->width / 2), 2) + pow((camera->height / 2), 2)) + pow(ray.z, 2) - pow(ray.x, 2) - pow(ray.y, 2)) / 1.5708;
 
 			// Добавляем к лучу поворот камеры
-			// ray = (t_vector3)ft_transform_vertex(ray, t_matrix_4x4 neo)
-			ray = ft_vec3_add(ray, camera->normal_dir);
+			ray = ft_transform_vertex(ray, camera->rotation_matrix);
 
 			// Цвет выражен через вектор
 			vec_color = render_get_pixel_color(w, *orig, ray);

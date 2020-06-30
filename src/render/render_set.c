@@ -21,6 +21,7 @@ static void		render_xml_elem_to_object(t_wolf3d *w, t_xml_elem *elem, int type)
 	obj = ft_memalloc(sizeof(t_rt_obj));
 	ft_bzero(obj, sizeof(t_rt_obj));
 	obj->rt_obj_type = type;
+	obj->rotation_matrix = ft_init_matrix();
 	attr_list = elem->attr;
 	while (attr_list)
 	{

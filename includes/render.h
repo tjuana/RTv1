@@ -24,6 +24,7 @@ typedef struct				s_rt_obj
 	t_vector3				normal_coord;
 	t_vector3				dir;
 	t_vector3				normal_dir;
+	t_matrix_4x4			rotation_matrix;
 	int						color;
 	t_vector3				vec_rgb;
 	double					radius;
