@@ -102,6 +102,7 @@ t_matrix_4x4	ft_oppositive_matrix(t_matrix_4x4 neo);
 **	algebra_matrix_2.c
 ** **************************************************************************
 */
+t_matrix_4x4	ft_init_matrix();
 double			ft_math_deg_to_rad(double angle_degrees);
 double			ft_math_rad_to_deg(double angle_radians);
 

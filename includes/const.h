@@ -18,7 +18,7 @@
 ** **************************************************************************
 */
 # define GUI_MD_MENU			0x00008001
-# define GUI_MD_GAME			0x0000A001
+# define GUI_MD_RENDER			0x0000A001
 # define GUI_MD_ME				0x0000F001
 # define GUI_MD_ME_SET_SECTOR	0x0000F100
 # define GUI_MD_ME_SET_PLAYER	0x0000F200

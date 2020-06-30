@@ -24,6 +24,7 @@ typedef struct				s_rt_obj
 	t_vector3				normal_coord;
 	t_vector3				dir;
 	t_vector3				normal_dir;
+	t_matrix_4x4			rotation_matrix;
 	int						color;
 	t_vector3				vec_rgb;
 	double					radius;
@@ -49,5 +50,13 @@ void						render_redraw(t_wolf3d *w, t_list *dom);
 ** **************************************************************************
 */
 void						render_set_scene(t_wolf3d *w);
+
+/*
+** **************************************************************************
+**	src/render/render_camera.c
+** **************************************************************************
+*/
+void						render_camera_add_dir(t_wolf3d *w, \
+								t_matrix_4x4 matrix);
 
 #endif

@@ -21,6 +21,7 @@ static void		render_xml_elem_to_object(t_wolf3d *w, t_xml_elem *elem, int type)
 	obj = ft_memalloc(sizeof(t_rt_obj));
 	ft_bzero(obj, sizeof(t_rt_obj));
 	obj->rt_obj_type = type;
+	obj->rotation_matrix = ft_init_matrix();
 	attr_list = elem->attr;
 	while (attr_list)
 	{
@@ -90,6 +91,8 @@ static void		render_xml_file_to_object_list(t_wolf3d *w)
 			render_xml_elem_to_object(w, ptr_elem, RT_OBJ_LIGHT);
 		else if (!ft_strcmp(ptr_elem->name, "sphere"))
 			render_xml_elem_to_object(w, ptr_elem, RT_OBJ_SPHERE);
+		else if (!ft_strcmp(ptr_elem->name, "plane"))
+			render_xml_elem_to_object(w, ptr_elem, RT_OBJ_PLANE);
 		list = list->next;
 	}
 }
