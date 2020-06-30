@@ -52,6 +52,7 @@ void	ft_gui_mousebuttonup_win_menu_btngame(void *data, SDL_Event e, \
 	ft_gui_elem_set_status(\
 		ft_gui_search_elem_by_name(w->gui.dom, "win_render"), \
 		GUI_ELEM_VISIBLE);
+	w->gui.mode = GUI_MD_RENDER;
 }
 
 // !!!

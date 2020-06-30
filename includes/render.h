@@ -50,4 +50,12 @@ void						render_redraw(t_wolf3d *w, t_list *dom);
 */
 void						render_set_scene(t_wolf3d *w);
 
+/*
+** **************************************************************************
+**	src/render/render_camera.c
+** **************************************************************************
+*/
+void						render_camera_add_dir(t_wolf3d *w, \
+								t_matrix_4x4 matrix);
+
 #endif

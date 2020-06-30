@@ -101,11 +101,16 @@ void		render_redraw(t_wolf3d *w, t_list *dom)
 	(void)dom;
 
 	// Last version
-	t_rt_obj *camera;
+	t_rt_obj	*camera;
+	t_gui_elem	*gui_elem;
 
 	if (w->camera == NULL)
 		return ;
 	camera = w->camera->content;
+
+	// printf("%f.2, %f.2, %f.2\n", camera->normal_dir.x, camera->normal_dir.y, camera->normal_dir.z);
+
+	gui_elem = dom->content;
 
 	// Счётчики
 	int		x;
@@ -128,29 +133,37 @@ void		render_redraw(t_wolf3d *w, t_list *dom)
 	orig = ft_my_malloc(sizeof(t_vector3));
 	*orig = (t_vector3){0.0, 0.0, 0.0, 0.0};
 
+	// *orig = camera->dir;
+
 	x = 0;
 	y = 0;
 
 	// Проходим по каждой строке...
-	while (y < WIN_HEIGHT)
+	while (y < gui_elem->h)
 	{
 		x = 0;
 		// По каждому пикселю...
-		while (x < WIN_WIDTH)
+		while (x < gui_elem->w)
 		{
 			// Коэффициенты отклонения луча
-			u = ((float)x / WIN_WIDTH);
-			v = ((float)y / WIN_HEIGHT);
+			u = ((float)x / gui_elem->w);
+			v = ((float)y / gui_elem->h);
 
 			// Получаем луч, который пускаем: к координате края изображения добавляем смещение
 			ray = (t_vector3){-camera->width / 2 + camera->width * u, -camera->height / 2 + camera->height * v, camera->coord.z, 0.0};
 			ray.z = -sqrt((pow((camera->width / 2), 2) + pow((camera->height / 2), 2)) + pow(ray.z, 2) - pow(ray.x, 2) - pow(ray.y, 2)) / 1.5708;
 
+			// Добавляем к лучу поворот камеры
+			// ray = (t_vector3)ft_transform_vertex(ray, t_matrix_4x4 neo)
+			ray = ft_vec3_add(ray, camera->normal_dir);
+
 			// Цвет выражен через вектор
 			vec_color = render_get_pixel_color(w, *orig, ray);
 
 			// Ставим пиксель (y по пикселям идет вниз, а должен вверх)
-			pixel = (WIN_HEIGHT - 1 - y) * WIN_WIDTH + x;
+			// pixel = (gui_elem->h - 1 - y) * gui_elem->w + x;
+
+			pixel = (gui_elem->v1.y + y) * WIN_WIDTH + gui_elem->v1.x + x;
 			if (pixel >= 0 && pixel < WIN_HEIGHT * WIN_WIDTH)
 				w->sdl->pixels[pixel] = ft_vec_rgb_to_hex(vec_color);
 			x++;
