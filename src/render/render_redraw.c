@@ -3,10 +3,24 @@
 // Incorrect
 double		render_hit_plane(t_vector3 camera_coord, t_vector3 ray, t_vector3 coord, t_vector3 dir)
 {
-	(void)camera_coord;
-	(void)coord;
+    (void)camera_coord;
+    (void)ray;
 
-	return (fabs(ray.x * dir.x + ray.y * dir.y + ray.z * dir.z) < 10);
+    t_vector3 dir_plane;
+    // добавить в парсер направление плоскости
+    dir_plane.x = 1;
+    dir_plane.y = 0;
+    dir_plane.z = 0;
+    dir_plane.w = 1;
+    //
+    double dotp = ft_vec3_dot_product(&dir_plane, &dir);
+    if (fabs(dotp) < 0.0001f)
+        return (0);
+    t_vector3 difference = ft_vec3_sub(&coord, &ray);
+    float t = (ft_vec3_dot_product(&difference, &dir_plane)) / dotp;
+     if (t < 0.0001f)
+         return (0);
+    return (t);
 }
 
 // Ф-ия определяла, пересекает ли луч объект (шар)
