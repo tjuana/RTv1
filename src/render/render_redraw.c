@@ -81,7 +81,7 @@ t_vector3	render_get_pixel_color(t_wolf3d *w, t_vector3 orig, t_vector3 dir)
 			intensive = 0.0;
 			while (light_list)
 			{
-				//// 1. Вычислим ненормализованный вектор
+				// 1. Вычислим ненормализованный вектор
 				t_vector3 v = ft_vec3_add(ft_vec3_add(\
 					orig, // orig
 					ft_vec3_scalar_product(&dir, t) // dir * t
